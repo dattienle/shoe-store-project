@@ -1,12 +1,11 @@
 import React from 'react';
-import { View, Text, TextInput, StyleSheet, Image } from 'react-native';
-import { Button } from 'react-native-elements';
+import { View, Text, TextInput, StyleSheet, Image, Button, ScrollView } from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: '#fff',
     padding: 20,
+    margin: 0,
   },
   sectionTitle: {
     fontSize: 18,
@@ -20,7 +19,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   textInputRow: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'space-between',
     marginBottom: 10,
   },
@@ -28,8 +27,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   paymentContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'column',
+    alignItems: 'left',
     marginBottom: 20,
   },
   paymentLogo: {
@@ -48,12 +47,12 @@ const styles = StyleSheet.create({
   payButton: {
     backgroundColor: '#007bff', 
     padding: 15,
+    height: 20,
   },
 });
-const PaymentPage = ({ route }) => {
-  const { totalPrice } = route.params;
+const PaymentPage = ({ totalPrice, onClose }) => {
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.sectionTitle}>Thông tin giao hàng</Text>
       <View style={styles.textInputRow}>
         <Text style={styles.textInputLabel}>Người nhận:</Text>
@@ -63,7 +62,7 @@ const PaymentPage = ({ route }) => {
         <Text style={styles.textInputLabel}>Số điện thoại:</Text>
         <TextInput style={styles.addressInput} placeholder="Số điện thoại" keyboardType="phone-pad" />
       </View>
-      <TextInput style={styles.addressInput} placeholder="Địa chỉ" multiline />
+      <Text style={styles.sectionTitle}>Địa chỉ</Text>
       <View style={styles.textInputRow}>
         <Text style={styles.textInputLabel}>Số Nhà</Text>
         <TextInput style={styles.addressInput} placeholder="Số Nhà" />
@@ -86,14 +85,16 @@ const PaymentPage = ({ route }) => {
       </View>
       <Text style={styles.sectionTitle}>Phương thức thanh toán</Text>
       <View style={styles.paymentContainer}>
-        <Image source={require('./momo.png')}
+        <Image source={{uri: 'https://developers.momo.vn/v3/assets/images/icon-wthout-bgr-e4496e210dca9a7372ad1fe53d079e16.png'}}
                style={styles.paymentLogo}
                resizeMode="contain" />
         <Text style={styles.paymentText}>Ví MoMo</Text>
       </View>
-      <Text style={styles.totalAmount}>Tổng tiền: {totalPrice} ₫</Text>
-      <Button title="Thanh toán" buttonStyle={styles.payButton} />
-    </View>
+      <View style={styles.paymentContainer}>
+        <Text style={styles.totalAmount}>Tổng tiền: {totalPrice} ₫</Text>
+        <Button title="Thanh toán" buttonStyle={styles.payButton} onPress={onClose}/>
+      </View>
+    </ScrollView>
   );
 };
 
