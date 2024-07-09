@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   Dimensions,
@@ -13,44 +13,7 @@ import {
 
 const WIDTH = Dimensions.get("window").width;
 const HEIGHT = Dimensions.get("window").height;
-const renderItem = ({ item, index }) => {
-  const isEven = index % 2 === 0;
 
-  const cardStyle = isEven ? styles.cardLeft : styles.cardRight;
-  const discountStyle = isEven ? styles.discountLeft : styles.discountRight;
-  const textCartStyle = isEven ? styles.textCartLeft : styles.textCartRight;
-  return (
-    <View style={cardStyle}>
-      <View style={styles.imageCard}>
-        <Image
-          source={{ uri: item.image }}
-          style={{ width: "100%", height: "100%" }}
-          resizeMode="contain"
-        />
-      </View>
-
-      <View style={textCartStyle}>
-        <Text
-          style={{
-            textDecorationLine: "line-through",
-            color: "#C1C1C1",
-            textAlign: "center",
-            fontWeight: "500",
-          }}
-        >
-          {item.originalPrice}
-        </Text>
-
-        <Text style={styles.price}>{item.salePrice}</Text>
-        <Text style={styles.nameShoes}>{item.name}</Text>
-      </View>
-      <View style={discountStyle}>
-        <Text style={styles.saleNumber}>{item.discount}</Text>
-        <Text style={styles.saleNumber}>OFF</Text>
-      </View>
-    </View>
-  );
-};
 export default function Home() {
   const data = [
     {
@@ -66,59 +29,59 @@ export default function Home() {
       image: "https://picsum.photos/seed/picsum/200/300",
     },
   ];
-  const productData = [
-    {
-      id: 1,
-      image:
-        "https://product.hstatic.net/200000475003/product/20_57a9cb8abcaf4092a55c23717350d673_master.png",
-      discount: "20%",
-      originalPrice: "3.700.000 đ",
-      salePrice: "2.960.000 đ",
-      name: "AIR JORDAN 1 RETRO HIGH",
-    },
-    {
-      id: 2,
-      image:
-        "https://bizweb.dktcdn.net/100/446/974/products/giay-mlb-chinh-hang-bigball-chunky-la-dodgers-mau-trang-xanh-3ashc101n-07whs-2.jpg?v=1698930610557",
-      discount: "30%",
-      originalPrice: "1.700.000 đ",
-      salePrice: "1.190.000 đ",
-      name: "MLB BIG BALL CHUNKY MICKEY",
-    },
-    {
-      id: 3,
-      image:
-        "https://product.hstatic.net/200000475003/product/990v6_c63a5ad9111446c983b52d9a1290ea9b_master.png",
-      discount: "30%",
-      originalPrice: "1.700.000 đ",
-      salePrice: "1.190.000 đ",
-      name: "New Balance 990v6 MiUSA Workwear Grey",
-    },
-    {
-      id: 4,
-      image: "https://picsum.photos/seed/picsum/200/300",
-      discount: "30%",
-      originalPrice: "1.700.000 đ",
-      salePrice: "1.190.000 đ",
-      name: "MLB BIG BALL CHUNKY MICKEY",
-    },
-    {
-      id: 5,
-      image: "https://picsum.photos/seed/picsum/200/300",
-      discount: "30%",
-      originalPrice: "1.700.000 đ",
-      salePrice: "1.190.000 đ",
-      name: "MLB BIG BALL CHUNKY MICKEY",
-    },
-    {
-      id: 6,
-      image: "https://picsum.photos/seed/picsum/200/300",
-      discount: "30%",
-      originalPrice: "1.700.000 đ",
-      salePrice: "1.190.000 đ",
-      name: "MLB BIG BALL CHUNKY MICKEY",
-    },
-  ];
+
+  const [productData, setProductData] = useState([]);
+  const [filteredProductData, setFilteredProductData] = useState([]);
+  useEffect(() => {
+    fetch("https://6335aa1fea0de5318a188910.mockapi.io/project")
+      .then((response) => response.json())
+      .then((data) => {
+        setProductData(data);
+        const filteredData = data.filter(
+          (item) => item.salePrice && item.discount
+        );
+        setFilteredProductData(filteredData);
+      });
+  });
+
+  const renderItem = ({ item, index }) => {
+    const isEven = index % 2 === 0;
+
+    const cardStyle = isEven ? styles.cardLeft : styles.cardRight;
+    const discountStyle = isEven ? styles.discountLeft : styles.discountRight;
+    const textCartStyle = isEven ? styles.textCartLeft : styles.textCartRight;
+    return (
+      <View style={cardStyle}>
+        <View style={styles.imageCard}>
+          <Image
+            source={{ uri: item.image }}
+            style={{ width: "100%", height: "100%" }}
+            resizeMode="contain"
+          />
+        </View>
+
+        <View style={textCartStyle}>
+          <Text
+            style={{
+              textDecorationLine: "line-through",
+              color: "#C1C1C1",
+              textAlign: "center",
+              fontWeight: "500",
+            }}
+          >
+            {item.originalPrice}
+          </Text>
+
+          <Text style={styles.price}>{item.salePrice}</Text>
+          <Text style={styles.nameShoes}>{item.name}</Text>
+        </View>
+        <View style={discountStyle}>
+          <Text style={styles.saleNumber}>{item.discount}</Text>
+          <Text style={styles.saleNumber}>OFF</Text>
+        </View>
+      </View>
+    );
+  };
   const [imgActive, setImgActive] = useState(0);
   onchange = (nativeEvent) => {
     if (nativeEvent) {
@@ -162,7 +125,7 @@ export default function Home() {
       </View>
       <View style={styles.card}>
         <FlatList
-          data={productData}
+          data={filteredProductData}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContainer}
@@ -200,14 +163,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#F2F2F2",
   },
   listContainer: {
-    // padding: 10,
     paddingBottom: 100,
   },
   imageCard: {
     width: 150,
     height: 100,
   },
-  // làm đổ bóng cho card
   cardLeft: {
     position: "relative",
     flexDirection: "row",

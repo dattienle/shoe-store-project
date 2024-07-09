@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState , useEffect} from "react";
 import {
   View,
   Text,
@@ -9,48 +9,76 @@ import {
 } from "react-native";
 
 export default function Category() {
+  const [productData, setProductData] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("NIKE");
+  useEffect(() => {
+    fetch("https://6335aa1fea0de5318a188910.mockapi.io/project")
+      .then((response) => response.json())
+      .then((data) => {
+        setProductData(data);
+      });
+  });
+  const filteredProductData = productData.filter(
+    (product) => product.category === selectedCategory
+  );
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Menu */}
       <View style={styles.menu}>
-        <TouchableOpacity style={[styles.menuItem, styles.selected]}>
-          <Text style={(styles.menuText, styles.selected)}>NIKE</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem}>
-          <Text style={styles.menuText}>MLB</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem}>
-          <Text style={styles.menuText}>ADS</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem}>
-          <Text style={styles.menuText}>VANS</Text>
-        </TouchableOpacity>
+        {["NIKE", "MLB", "ADS", "VANS"].map((category) => (
+          <TouchableOpacity
+            key={category}
+            style={[
+              styles.menuItem,
+              selectedCategory === category && styles.selected,
+            ]}
+            onPress={() => setSelectedCategory(category)}
+          >
+            <Text
+              style={[
+                styles.menuText,
+                selectedCategory === category && styles.selectedText,
+              ]}
+            >
+              {category}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
       {/* Product */}
-      <View style={styles.productContainer}>
-        <View style={styles.boxImage}>
-          <Image
-            style={styles.productImage}
-            source={{
-              uri: "https://censor.vn/wp-content/uploads/2021/12/1-giay-nike-air-force-1-low-gs-white-314192-117.jpeg",
-            }}
-          />
-        </View>
-        <View style={styles.boxContent}>
-          <Text style={styles.productName}>AIR FORCE 1</Text>
-          <Text style={styles.productPrice}>1.120.000 đ</Text>
-          <View style={styles.sizes}>
-            {["36", "37", "38", "39", "40", "41", "42", "43", "44"].map(
-              (size) => (
-                <TouchableOpacity key={size} style={styles.size}>
-                  <Text style={styles.sizeText}>{size}</Text>
-                </TouchableOpacity>
-              )
+      {filteredProductData.map((product) => (
+        <View key={product.id} style={styles.productContainer}>
+          <View style={styles.boxImage}>
+            <Image
+              style={styles.productImage}
+              source={{ uri: product.image }}
+            />
+          </View>
+          <View style={styles.boxContent}>
+            <Text style={styles.productName}>{product.name}</Text>
+            {product.salePrice ? (
+              <>
+                <Text style={styles.productOriginalPrice}>
+                  {product.originalPrice}
+                </Text>
+                <Text style={styles.productSalePrice}>{product.salePrice}</Text>
+              </>
+            ) : (
+              <Text style={styles.productPrice}>{product.originalPrice}</Text>
             )}
+            <View style={styles.sizes}>
+              {product.sizes.map(
+                (size) => (
+                  <TouchableOpacity key={size} style={styles.size}>
+                    <Text style={styles.sizeText}>{size}</Text>
+                  </TouchableOpacity>
+                )
+              )}
+            </View>
           </View>
         </View>
-      </View>
+      ))}
     </ScrollView>
   );
 }
@@ -74,6 +102,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
     color: "#fff",
     fontWeight: "bold",
+  },
+  selectedText:{
+    color: "#fff",
   },
   menuText: {
     color: "#000",
@@ -102,6 +133,18 @@ const styles = StyleSheet.create({
   },
   productName: {
     fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  productOriginalPrice: {
+    fontSize: 16,
+    color: "#888",
+    textDecorationLine: "line-through",
+    marginBottom: 5,
+  },
+  productSalePrice: {
+    fontSize: 16,
+    color: "red",
     fontWeight: "bold",
     marginBottom: 5,
   },
